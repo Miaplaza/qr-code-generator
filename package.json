@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "bootstrap": "^5.3.3",
+    "qr-code-styling": "^1.6.0-rc.1",
     "vue": "^3.4.21"
   },
   "devDependencies": {
