@@ -7,18 +7,14 @@
     </div>
     <form ref="generateQRCodeForm" class="row justify-content-center" novalidate>
       <div class="col-auto has-validation url-input">
-        <input ref="urlInput" v-model="urlToGenerate" type="url" placeholder="Enter URL link" minlength="25" required
-          :readonly="isQRCodeGenerated" class="form-control">
+        <input ref="urlInput" v-model="urlToGenerate" type="url" placeholder="Enter URL link" :minlength="minUrlLength"
+          required :readonly="isQRCodeGenerated" class="form-control">
         <div class="invalid-feedback">
-          Please enter a correct URL link.
-          <br>
-          Also, make sure your URL contains at least 25 symbols and no more than 280 symbols
-          in order to create a scannable QR code.
-          You can add whitespaces at the end if the link is too short.
+          {{ urlError }}
         </div>
       </div>
       <div class="col-auto">
-        <button class="btn btn-primary" :disabled="isQRCodeGenerated" @click.prevent="generateQrCode(urlToGenerate)">
+        <button class="btn btn-primary" :disabled="isQRCodeGenerated" @click.prevent="generateQRCode(urlToGenerate)">
           Generate
         </button>
       </div>
@@ -58,13 +54,31 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import QRCodeStyling, {
+  type ErrorCorrectionLevel,
   type FileExtension,
   type Options
 } from 'qr-code-styling';
 
 const blackColor = "#000000";
 const whiteColor = "#ffffff";
-const maxUrlLength = 280;
+const errorCorrectionLevel: ErrorCorrectionLevel = "Q";
+
+// Limits of the QR code version 40 (the biggest one).
+const urlLinkLengthHardLimitMap: Record<ErrorCorrectionLevel, number> = {
+  L: 2953,
+  M: 2331,
+  Q: 1663,
+  H: 1273
+}
+
+// These are experementally figured out values which generate scannable QR codes accounting 
+// current parameters (error correction level, image size, margins).
+// Values outside of this range generate unscannable QR codes.
+const minUrlLength = 12;
+const maxUrlLength = 482;
+
+// Additionally limits max length of data by biggest possible QR code version.
+var limitedMaxUrlLength = Math.min(maxUrlLength, urlLinkLengthHardLimitMap[errorCorrectionLevel]);
 
 const generateQRCodeForm = ref<HTMLFormElement>(null!);
 const qrCodeComponent = ref<HTMLElement>(null!);
@@ -72,21 +86,22 @@ const urlInput = ref<HTMLInputElement>(null!);
 
 const isQRCodeGenerated = ref(false);
 const urlToGenerate = ref("");
+const urlError = ref("");
 const extension = ref<FileExtension>('png');
 const options = ref<Options>({
   width: 300,
   height: 300,
   type: 'svg',
   image: '/qr-code-generator/aki.png',
-  margin: 10,
+  margin: 5,
   qrOptions: {
     typeNumber: 0,
     mode: 'Byte',
-    errorCorrectionLevel: 'H'
+    errorCorrectionLevel: errorCorrectionLevel
   },
   imageOptions: {
     hideBackgroundDots: true,
-    imageSize: 0.7,
+    imageSize: 0.5,
     margin: 5,
     crossOrigin: 'anonymous',
   },
@@ -108,8 +123,8 @@ const options = ref<Options>({
 });
 var qrCode = new QRCodeStyling(options.value);
 
-function generateQrCode(url: string): void {
-  if (!validateQrCodeGenerationForm()) {
+function generateQRCode(url: string): void {
+  if (!validateQRCodeGenerationForm()) {
     return;
   }
 
@@ -118,40 +133,46 @@ function generateQrCode(url: string): void {
   isQRCodeGenerated.value = true;
 }
 
-function validateQrCodeGenerationForm(): boolean {
-  urlInput.value.setCustomValidity('');
+function validateQRCodeGenerationForm(): boolean {
+  validateUrlInput();
 
-  if (!generateQRCodeForm.value.checkValidity()) {
+  if (urlError.value !== "") {
+    // Forces the form to show validation result.
     generateQRCodeForm.value.classList.add('was-validated');
-    return false;
-  }
-  // Makes max length limitation soft, without cutoff (unlike 'maxlength' attribute).
-  if (urlInput.value.value.length > maxUrlLength) {
-    // Triggers invalid state of the URL input.
-    // The error message doesn't matter because we will show predefined error message.
-    urlInput.value.setCustomValidity('error');
-    generateQRCodeForm.value.classList.add('was-validated');
-    urlInput.value.addEventListener('input', urlInputMaxLengthWatcher);
-    return false;
+    urlInput.value.addEventListener('input', validateUrlInput);
   }
 
-  return true;
+  return urlError.value === "";
 }
 
-function urlInputMaxLengthWatcher() {
+function getUrlInputValidationError(): string {
+  if (urlInput.value.validity.valueMissing) {
+    return "Please enter a URL link.";
+  } else if (urlInput.value.validity.typeMismatch) {
+    return "Please enter a correct URL link.";
+  } else if (urlInput.value.validity.tooShort) {
+    return `The URL link should have at least ${minUrlLength} symbols in order to create a scannable QR code.
+      Your link has ${urlToGenerate.value.length} symbols.`;
   // Makes max length limitation soft, without cutoff (unlike 'maxlength' attribute).
-  if (urlInput.value.value.length > maxUrlLength) {
-    urlInput.value.setCustomValidity('error');
+  } else if (urlToGenerate.value.length > limitedMaxUrlLength) {
+    return `The URL link should have no more than ${limitedMaxUrlLength} symbols in order to create a scannable QR code.
+      Your link has ${urlToGenerate.value.length} symbols.`
   } else {
-    urlInput.value.setCustomValidity('');
+    return "";
   }
+}
+
+function validateUrlInput(): void {
+  urlError.value = getUrlInputValidationError();
+  urlInput.value.setCustomValidity(urlError.value);
 }
 
 function reset(): void {
   isQRCodeGenerated.value = false;
   urlToGenerate.value = "";
   generateQRCodeForm.value.classList.remove('was-validated');
-  urlInput.value.removeEventListener('input', urlInputMaxLengthWatcher);
+  urlInput.value.removeEventListener('input', validateUrlInput);
+  // Clears the QR code.
   qrCodeComponent.value.replaceChildren();
 }
 
