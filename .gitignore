@@ -19,7 +19,6 @@ coverage
 
 # Editor directories and files
 .vscode/*
-!.vscode/extensions.json
 .idea
 *.suo
 *.ntvs*
@@ -28,3 +27,55 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+# General
+*.swp
+*.*~
+project.lock.json
+.DS_Store
+*.pyc
+nupkg/
+._*
+Thumbs.db
+*.user
+*.orig
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+# NPM & yarn related
+node_modules
+yarn-error.log
+
+# Rider
+.idea
+
+# Visual Studio
+.vs/
+*.csproj.user
+
+# JetBrains Rider IDE (and all other JetBrains products)
+/.idea
+
+# Visual Studio Code
+.vscode/*
+*.code-workspace
