@@ -131,16 +131,27 @@ function validateQrCodeGenerationForm(): boolean {
     // The error message doesn't matter because we will show predefined error message.
     urlInput.value.setCustomValidity('error');
     generateQRCodeForm.value.classList.add('was-validated');
+    urlInput.value.addEventListener('input', urlInputMaxLengthWatcher);
     return false;
   }
 
   return true;
 }
 
+function urlInputMaxLengthWatcher() {
+  // Makes max length limitation soft, without cutoff (unlike 'maxlength' attribute).
+  if (urlInput.value.value.length > maxUrlLength) {
+    urlInput.value.setCustomValidity('error');
+  } else {
+    urlInput.value.setCustomValidity('');
+  }
+}
+
 function reset(): void {
   isQRCodeGenerated.value = false;
   urlToGenerate.value = "";
   generateQRCodeForm.value.classList.remove('was-validated');
+  urlInput.value.removeEventListener('input', urlInputMaxLengthWatcher);
   qrCodeComponent.value.replaceChildren();
 }
 
