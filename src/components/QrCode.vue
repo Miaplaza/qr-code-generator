@@ -1,66 +1,67 @@
 <template>
-  <main>
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-auto">
-          <form class="row justify-content-center">
-            <div class="col-auto">
-              <input type="url" placeholder="Enter URL link" v-model="urlToGenerate" class="form-control url-input">
-            </div>
-            <div class="col-auto">
-              <button class="btn btn-primary" @click.prevent="generateQRCode(urlToGenerate)">Generate</button>
-            </div>
-          </form>
-          <div class="row justify-content-center">
-            <div class="col-auto my-3">
-              <div class="qr-code" ref="qrCodeComponent"></div>
-            </div>
-          </div>
-          <template v-if="isQRCodeGenerated">
-            <div class="row justify-content-center">
-              <div class="col-auto">
-                <select class="form-select" v-model="extension">
-                  <option value="svg">SVG</option>
-                  <option selected value="png">PNG</option>
-                  <option value="jpeg">JPEG</option>
-                  <option value="webp">WEBP</option>
-                </select>
-              </div>
-              <div class="col-auto">
-                <button class="btn btn-primary" @click.prevent="download('qrCode', extension)">Download</button>
-              </div>
-            </div>
-          </template>
-        </div>
+  <main class="container">
+    <div class="row justify-content-center my-4">
+      <div class="col-auto">
+        <h1>QR code generator</h1>
       </div>
     </div>
+    <QrCodeValidationForm ref="qrCodeValidationForm" :min-url-length="minUrlLength" :max-url-length="maxUrlLength"
+      @generate-qr-code="onGenerateQrCode" />
+    <div class="row justify-content-center my-3">
+      <div class="col-auto">
+        <div ref="qrCodeComponent" class="qr-code"></div>
+      </div>
+    </div>
+    <template v-if="isQrCodeGenerated">
+      <QrCodeDownloadForm @download-qr-code="onDownloadQrCode"/>
+      <div class="row justify-content-center mt-5">
+        <div class="col-auto">
+          <button class="btn btn-lg btn-success" :disabled="!isQrCodeGenerated" @click.prevent="reset()">
+            Generate new QR code
+          </button>
+        </div>
+      </div>
+    </template>
   </main>
 </template>
-
 <script setup lang="ts">
 import { ref } from 'vue';
 import QRCodeStyling, {
+  type ErrorCorrectionLevel,
   type FileExtension,
   type Options
 } from 'qr-code-styling';
+import QrCodeValidationForm from './QrCodeValidationForm.vue';
+import QrCodeDownloadForm from './QrCodeDownloadForm.vue';
 
 const blackColor = "#000000";
 const whiteColor = "#ffffff";
+const errorCorrectionLevel: ErrorCorrectionLevel = "Q";
+// Limits of the QR code version 40 (the biggest one).
+const urlLinkLengthHardLimitMap: Record<ErrorCorrectionLevel, number> = {
+  L: 2953,
+  M: 2331,
+  Q: 1663,
+  H: 1273
+}
+// URL with length less than minUrlLength is non-scannable.
+const minUrlLength = 12;
+const maxUrlLength = urlLinkLengthHardLimitMap[errorCorrectionLevel];
 
-const isQRCodeGenerated = ref(false);
-const urlToGenerate = ref("");
-const qrCodeComponent = ref<undefined | HTMLElement>(undefined);
-const extension: FileExtension = 'png';
+const qrCodeComponent = ref<HTMLElement>(null!);
+const qrCodeValidationForm = ref<InstanceType<typeof QrCodeValidationForm> | null>(null);
+
+const isQrCodeGenerated = ref(false);
 const options = ref<Options>({
   width: 300,
   height: 300,
   type: 'svg',
-  image: '/qr-code-generator/favicon.ico',
-  margin: 10,
+  image: '/qr-code-generator/aki.png',
+  margin: 5,
   qrOptions: {
     typeNumber: 0,
     mode: 'Byte',
-    errorCorrectionLevel: 'Q'
+    errorCorrectionLevel: errorCorrectionLevel
   },
   imageOptions: {
     hideBackgroundDots: true,
@@ -86,21 +87,24 @@ const options = ref<Options>({
 });
 var qrCode = new QRCodeStyling(options.value);
 
-function generateQRCode(url: string) {
+function onGenerateQrCode(url: string): void {
   qrCode.update({ data: url });
   qrCode.append(qrCodeComponent.value);
-  isQRCodeGenerated.value = true;
+  isQrCodeGenerated.value = true;
 }
 
-function download(name: string, extension: FileExtension) {
-  qrCode.download({ name: name, extension: extension });
+function reset(): void {
+  isQrCodeGenerated.value = false;
+  // Clears the QR code.
+  qrCodeComponent.value.replaceChildren();
+  qrCodeValidationForm.value?.reset();
+}
+
+async function onDownloadQrCode(extension: FileExtension): Promise<void> {
+  await qrCode.download({ name: 'Aki_QR_code', extension: extension });
 }
 </script>
-
 <style scoped lang="scss">
-.url-input {
-  width: 400px;
-}
 
 .qr-code {
   border: 1px solid black;
