@@ -39,7 +39,7 @@
           </select>
         </div>
         <div class="col-auto">
-          <button class="btn btn-primary" @click.prevent="download('qrCode', extension)">
+          <button class="btn btn-primary" @click.prevent="download('Aki_QR_code', extension)">
             Download
           </button>
         </div>
