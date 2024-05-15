@@ -49,22 +49,23 @@ const whiteColor = "#ffffff";
 
 const isQRCodeGenerated = ref(false);
 const urlToGenerate = ref("");
-const qrCodeComponent = ref<undefined | HTMLElement>(undefined);
-const extension: FileExtension = 'png';
+
+const qrCodeComponent = ref<HTMLElement>(null!);
+const extension = ref<FileExtension>('png');
 const options = ref<Options>({
   width: 300,
   height: 300,
   type: 'svg',
-  image: '/qr-code-generator/favicon.ico',
+  image: '/qr-code-generator/aki.png',
   margin: 10,
   qrOptions: {
     typeNumber: 0,
     mode: 'Byte',
-    errorCorrectionLevel: 'Q'
+    errorCorrectionLevel: 'H'
   },
   imageOptions: {
     hideBackgroundDots: true,
-    imageSize: 0.5,
+    imageSize: 0.7,
     margin: 5,
     crossOrigin: 'anonymous',
   },
