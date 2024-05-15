@@ -105,6 +105,7 @@ async function onDownloadQrCode(extension: FileExtension): Promise<void> {
 }
 </script>
 <style scoped lang="scss">
+
 .qr-code {
   border: 1px solid black;
 }
