@@ -67,14 +67,19 @@
   
   function validateUrlInput(): void {
     urlError.value = getUrlInputValidationError();
+    // Changes the validation state of the URL input.
+    // The message itself doesn't matter (if empty, the input is valid), but the state is dependent fron 'urlError' variable.
     urlInput.value.setCustomValidity(urlError.value);
   }
   
   function getUrlInputValidationError(): string {
+    // Checked by 'required' attribute.
     if (urlInput.value.validity.valueMissing) {
       return "Please enter a URL link.";
+      // Checked by 'type="url"' attribute.
     } else if (urlInput.value.validity.typeMismatch) {
       return "Please enter a correct URL link.";
+      // Checked by 'minlength' attribute.
     } else if (urlInput.value.validity.tooShort) {
       return `The URL link should have at least ${props.minUrlLength} symbols in order to create a scannable QR code.
         Your link has ${urlData.value.length} symbols.`;

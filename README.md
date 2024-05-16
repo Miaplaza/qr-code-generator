@@ -1,14 +1,16 @@
-# qr-code-generator
+# QR Code Generator
 
-This template should help get you started developing with Vue 3 in Vite.
+A static site which allows generating QR codes from URL link with a picture of Mia in the center. Shows the result on screen and allows downloading it in one of 4 formats: SVG, PNG, JPEG and WEBP.
+
+The project is built on `Vue 3` with `TypeScript` and uses `Bootstrap 5` for UI. It is hosted as static site on GitHub Pages by the link: https://miaplaza.github.io/qr-code-generator/.
 
 ## Recommended IDE Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+[VSCode](https://code.visualstudio.com/) + [Vue](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
 ## Type Support for `.vue` Imports in TS
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Vue](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
 
 ## Customize configuration
 
@@ -37,3 +39,9 @@ npm run build
 ```sh
 npm run lint
 ```
+
+## Making changes & deploy
+
+There is `dev` branch for development. All ready changes should go to `main`. The `main` branch is protected from direct pushes, so to add changes there you need to create a Pull Request from `dev` and merge it.
+
+Deployment to GitHub Pages works using GitHub Actions configuration (see `.github/workflows/deploy.yml` file). Deploy is triggered by push to the `main` branch, so every successful merge with Pull Request triggers automatic deploy to GitHub Pages.
