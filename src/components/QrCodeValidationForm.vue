@@ -68,7 +68,7 @@
   function validateUrlInput(): void {
     urlError.value = getUrlInputValidationError();
     // Changes the validation state of the URL input.
-    // The message itself doesn't matter (if empty, the input is valid), but the state is dependent fron 'urlError' variable.
+    // The message itself doesn't matter (if empty, the input is valid), but the state depends on 'urlError' variable.
     urlInput.value.setCustomValidity(urlError.value);
   }
   
