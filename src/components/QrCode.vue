@@ -103,7 +103,7 @@ function reset(): void {
 }
 
 async function onDownloadQrCode(extension: FileExtension): Promise<void> {
-  await qrCode.download({ name: 'Aki_QR_code', extension: extension });
+  await qrCode.download({ name: 'Mia_QR_code', extension: extension });
 }
 </script>
 <style scoped lang="scss">
