@@ -95,6 +95,8 @@ function onGenerateQrCode(url: string): void {
 
 function reset(): void {
   isQrCodeGenerated.value = false;
+  qrCode = new QRCodeStyling(options.value);
+
   // Clears the QR code.
   qrCodeComponent.value.replaceChildren();
   qrCodeValidationForm.value?.reset();
